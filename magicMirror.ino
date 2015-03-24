@@ -13,15 +13,17 @@ const int col[4] = {
 // 2-dimensional array of pixels:
 int pixels[4][4];
 
+int totalCells = 16;
+
 // variables for the incoming serial data
-int indexIn = 0;
+int xIndexIn = 0;
+int yIndexIn = 0;
 int redIn;
 int blueIn;
 int greenIn;
 
-// define sensors
+// define sensors (eventually)
 #define wheelRate A1
-
 
 void setup() {
 
@@ -51,38 +53,68 @@ void setup() {
 
 void loop() {
 
-	if (Serial.available() > 0) {
-		// read input from Processing:
-		fetchStream();
+	
+}
 
-		// draw the screen:
-		refreshScreen();
+void serialEvent() {
+
+	while (Serial.available() > 0) {
+
+		fetchStream();
 
 	}
 }
 
 void fetchStream() {
 
-    // get incoming byte:
-    inByte = Serial.read();
+		    // get incoming index and RGB bytes:
+		    xIndexIn = Serial.read();
+		    yIndexIn = Serial.read();
+			redIn = Serial.read();
+			greenIn = Serial.read();
+			blueIn = Serial.read();
 
+			if (Serial.read() == ",") {
 
-  // turn off the last position:
-  pixels[x][y] = HIGH;
-  // read the sensors for X and Y values:
-  // shave a bit of the top to help with mapping to the full 4 pixel range
-  x = 3 - map(analogRead(sensor1), sensorLow1, sensorHigh1 * 0.9, 0, 3);
-  y = map(analogRead(sensor2), sensorLow2, sensorHigh2 * 0.9, 0, 3);
+				writePixel(xIndexIn, yIndexIn, redIn, greenIn, blueIn);
 
+			}
 
-  // Serial.print("Sensor A2: ");
-  // Serial.println(analogRead(A2));
-  // Serial.print("Sensor A1: ");
-  // Serial.println(analogRead(A1));
+			if (xIndexIn && yIndexIn == 4) {
 
-  // set the new pixel position low so that the LED will turn on
-  // in the next screen refresh:
-  pixels[x][y] = LOW;
+				// draw the screen:
+				refreshScreen();
+				
+			}  
+	// 
+	// turn off the last position:
+	// pixels[x][y] = HIGH;
+
+}
+
+void writePixel(int xIndexTemp, int yIndexTemp, int redTemp, int greenTemp, int blueTemp) {
+
+	int xCellIndex = xIndexTemp;
+	int yCellIndex = yIndexTemp;
+	int redVal = redTemp;
+	int greenVal = greenTemp;
+	int blueVal = blueTemp;
+
+	// let's try and write this to the pixel[] array, using the old code.
+	// and let's do some kind of red filter to make it work with our
+	// 4x4 matrix
+	// -----------------------------------------------------------
+	// set the new pixel position low so that the LED will turn on
+	// in the next screen refresh:
+
+	if (redVal > 123) {
+		// if it's reddish, turn the LED on
+		pixels[xCellIndex][yCellIndex] = LOW;
+
+		} else {
+			pixels[xCellIndex][yCellIndex] = HIGH;
+
+		}
 
 }
 
