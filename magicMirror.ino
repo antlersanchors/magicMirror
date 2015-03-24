@@ -11,7 +11,13 @@ const int col[4] = {
 	2,7,5,12};
 
 // 2-dimensional array of pixels:
-int pixels[4][4];          
+int pixels[4][4];
+
+// variables for the incoming serial data
+int indexIn = 0;
+int redIn;
+int blueIn;
+int greenIn;
 
 // define sensors
 #define wheelRate A1
@@ -45,15 +51,22 @@ void setup() {
 
 void loop() {
 
-  // read input from Processing:
-  fetchStream();
+	if (Serial.available() > 0) {
+		// read input from Processing:
+		fetchStream();
 
-  // draw the screen:
-  refreshScreen();
+		// draw the screen:
+		refreshScreen();
 
+	}
 }
 
-void readSensors() {
+void fetchStream() {
+
+    // get incoming byte:
+    inByte = Serial.read();
+
+
   // turn off the last position:
   pixels[x][y] = HIGH;
   // read the sensors for X and Y values:
